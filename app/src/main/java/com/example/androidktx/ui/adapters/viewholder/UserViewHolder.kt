@@ -1,9 +1,6 @@
 package com.example.androidktx.ui.adapters.viewholder
 
-import android.view.View
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.androidktx.R
 import com.example.androidktx.data.model.User
 import com.example.androidktx.databinding.RecyclerItemUserBinding
 

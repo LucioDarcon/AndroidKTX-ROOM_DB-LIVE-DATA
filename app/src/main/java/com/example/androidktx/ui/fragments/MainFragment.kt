@@ -57,7 +57,6 @@ class MainFragment : Fragment() {
         getData()
     }
 
-
     private fun getData() {
         mUserViewModel = ViewModelProvider(
             this, UserViewModel
@@ -71,8 +70,6 @@ class MainFragment : Fragment() {
                 mUserAdapter.submitList(users)
             })
         }
-
-
     }
 
 }
