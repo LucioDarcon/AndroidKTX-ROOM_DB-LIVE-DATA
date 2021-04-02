@@ -3,4 +3,5 @@
     <string name="add">Add</string>
     <string name="name">Name:</string>
     <string name="e_mail">E-mail:</string>
+    <string name="save">Save</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.androidktx.R
 import com.example.androidktx.ui.dialogs.UserDialog
 import com.example.androidktx.ui.fragments.MainFragment
+import com.example.core.provider.Providers.provideDataBase
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -22,9 +23,16 @@ class MainActivity : AppCompatActivity() {
                 .commitNow()
         }
 
-        activity_main_float_action_button.setOnClickListener {
-            val mDialog = UserDialog(this)
-            mDialog.show()
+        provideDataBase(applicationContext)
+    }
+
+    override fun onBackPressed() {
+        val count = supportFragmentManager.backStackEntryCount;
+
+        if (count == 0) {
+            super.onBackPressed()
+        } else {
+            supportFragmentManager.popBackStack()
         }
     }
 

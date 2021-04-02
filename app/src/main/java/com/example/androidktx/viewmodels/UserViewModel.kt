@@ -3,25 +3,38 @@ package com.example.androidktx.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.androidktx.converter.UserConverter
+import com.example.androidktx.converter.UserConverter.converterUserEntityToDomain
+import com.example.androidktx.converter.UserConverter.converterUserToEntity
 import com.example.androidktx.data.model.User
-import com.example.androidktx.data.repository.UserRepositoryMock
-import kotlinx.coroutines.flow.Flow
+import com.example.core.datasource.UserLocalRepository
 import kotlinx.coroutines.flow.collect
 
-class UserViewModel(private val userRepositoryMock: UserRepositoryMock) : ViewModel() {
+class UserViewModel(private val userLocalRepository: UserLocalRepository) : ViewModel() {
 
     var usersLiveData = MutableLiveData<List<User>>()
+    var userCreated   = MutableLiveData<User>()
 
-    suspend fun getMockUsers() {
-        userRepositoryMock.getListUsers().collect { listUsers ->
-            usersLiveData.value = listUsers
+    suspend fun getUsers() {
+        userLocalRepository.getUsers().collect { listUsers ->
+            val users: ArrayList<User> = arrayListOf()
+            listUsers?.forEach { userEntity ->
+                users.add(UserConverter.converterUserEntityToDomain(userEntity))
+            }
+            usersLiveData.value = users
         }
     }
 
-    class UserViewModelFactory(private val userRepositoryMock: UserRepositoryMock) : ViewModelProvider.Factory {
+    suspend fun createUser(user: User) {
+        userLocalRepository.createUser(converterUserToEntity(user)).collect { userEntity ->
+            userCreated.value = user
+        }
+    }
+
+    class UserViewModelFactory(private val userLocalRepository: UserLocalRepository) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return UserViewModel(userRepositoryMock) as T
+            return UserViewModel(userLocalRepository) as T
         }
 
     }

@@ -9,8 +9,17 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
-    dataBinding {
-        enabled = true
+//    dataBinding {
+//        enabled = true
+//    }
+
+    buildFeatures {
+
+        dataBinding true
+        viewBinding true
+
+        // for view binding:
+        // viewBinding true
     }
 
     defaultConfig {
@@ -39,6 +48,9 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':core')
+    implementation 'androidx.room:room-runtime:2.2.5'
+    annotationProcessor 'androidx.room:room-compiler:2.2.5'
     def nav_version = "2.3.4"
     def lifecycle_version = "2.3.0"
 

@@ -4,26 +4,26 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="16dp"
-        android:padding="10dp"
-        android:focusableInTouchMode="true"
         android:background="@color/white"
-        android:orientation="vertical">
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="Name"
-            app:startIconTint="@color/white"
+            android:layout_margin="16dp"
+            android:hint="@string/name"
             app:boxBackgroundColor="@color/CornflowerBlue"
             app:endIconMode="clear_text"
             app:startIconContentDescription="You name"
             app:startIconDrawable="@drawable/ic_baseline_person_24"
-            android:layout_margin="16dp">
+            app:startIconTint="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/user_dialog_name"
+                android:id="@+id/user_dialog_name_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -32,18 +32,19 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:startIconContentDescription="You email"
-            android:hint="Email"
+            android:layout_margin="16dp"
+            android:hint="@string/e_mail"
             app:boxBackgroundColor="@color/CornflowerBlue"
-            app:startIconTint="@color/white"
             app:endIconMode="clear_text"
+            app:startIconContentDescription="You email"
             app:startIconDrawable="@drawable/ic_baseline_email_24"
-            android:layout_margin="16dp">
+            app:startIconTint="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/user_dialog_email"
+                android:id="@+id/user_dialog_email_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionSend"
                 android:layout_marginTop="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -53,7 +54,16 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
-            android:src="@drawable/user"/>
+            android:src="@drawable/user" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/user_dialog_save_user_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:backgroundTint="@color/CornflowerBlue"
+            android:layout_marginTop="50dp"
+            android:text="@string/save"
+            android:textColor="@color/white" />
 
     </LinearLayout>
 

@@ -6,18 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.androidktx.R
-import com.example.androidktx.data.repository.UserRepositoryMock
 import com.example.androidktx.databinding.MainFragmentBinding
 import com.example.androidktx.ui.adapters.UserAdapter
+import com.example.androidktx.ui.dialogs.UserDialog
+import com.example.androidktx.ui.dialogs.UserDialogContract
 import com.example.androidktx.viewmodels.UserViewModel
+import com.example.core.datasource.UserLocalRepository
+import com.example.core.provider.Providers
 import kotlinx.coroutines.launch
+import java.security.acl.Owner
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), UserDialogContract {
 
     private var mUserAdapter                   = UserAdapter()
     private var mUserViewModel: UserViewModel? = null
@@ -44,6 +47,11 @@ class MainFragment : Fragment() {
 
         initAdapter()
 
+        mView?.activityMainFloatActionButton?.setOnClickListener {
+            val mDialog = context?.let { it1 -> UserDialog(it1, this) }
+            mDialog?.show()
+        }
+
         return mView?.root
     }
 
@@ -60,16 +68,34 @@ class MainFragment : Fragment() {
     private fun getData() {
         mUserViewModel = ViewModelProvider(
             this, UserViewModel
-                .UserViewModelFactory(UserRepositoryMock())
+                .UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)))
         ).get(UserViewModel::class.java)
 
         lifecycleScope.launch {
-            mUserViewModel?.getMockUsers()
+            mUserViewModel?.getUsers()
 
             mUserViewModel?.usersLiveData?.observe(viewLifecycleOwner, Observer { users ->
                 mUserAdapter.submitList(users)
             })
         }
     }
+
+
+    override fun getSupportFragmentManager(): FragmentManager? {
+        return activity?.supportFragmentManager
+    }
+
+    override fun getLifecycleScoop(): LifecycleCoroutineScope {
+        return lifecycleScope
+    }
+
+    override fun getOwner(): ViewModelStore {
+        return viewModelStore
+    }
+
+    override fun getViewLifecycle(): LifecycleOwner {
+        return viewLifecycleOwner
+    }
+
 
 }

@@ -1,33 +1,37 @@
 package com.example.core.database
 
 import android.content.Context
+import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.core.database.Database.Companion.VERSION
+import com.example.core.dao.UserDao
+import com.example.core.database.KTMDatabase.Companion.VERSION
 import com.example.core.entities.UserEntity
 
-@androidx.room.Database(
+@Database(
     version      = VERSION,
     entities     = [UserEntity::class],
     exportSchema = false
 )
-abstract class Database : RoomDatabase() {
+abstract class KTMDatabase : RoomDatabase() {
+
+    abstract fun userDao(): UserDao
 
     companion object {
 
         const val VERSION = 1
 
         @Volatile
-        private var INSTANCE: Database? = null
+        private var INSTANCE: KTMDatabase? = null
 
         @JvmStatic
-        fun getInstance(applicationContext: Context): Database {
+        fun getInstance(applicationContext: Context): KTMDatabase {
             synchronized(this) {
                 return INSTANCE ?: Room
                     .databaseBuilder(
                         applicationContext,
-                        Database::class.java,
-                        "androidktp"
+                        KTMDatabase::class.java,
+                        "newsdadw"
                     ).fallbackToDestructiveMigration().build()
                     .also { INSTANCE = it }
             }
