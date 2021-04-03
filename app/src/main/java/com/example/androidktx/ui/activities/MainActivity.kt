@@ -1,9 +1,12 @@
 package com.example.androidktx.ui.activities
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import com.example.androidktx.R
 import com.example.androidktx.ui.dialogs.UserDialog
 import com.example.androidktx.ui.fragments.MainFragment
@@ -38,15 +41,32 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        val manager    = getSystemService(Context.SEARCH_SERVICE) as? SearchManager
+        val searchItem: MenuItem?   = menu?.findItem(R.id.main_menu_search_icon)
+        val searchView: SearchView? = searchItem?.actionView as SearchView
+
+        searchView?.setSearchableInfo(manager?.getSearchableInfo(componentName))
+        searchView?.queryHint = resources.getString(R.string.search)
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.container, MainFragment.newInstance(query))
+                    .commitNow()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.container, MainFragment.newInstance(newText))
+                    .commitNow()
+                return true
+            }
+        })
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.main_menu_add_icon -> {
-//                TODO ADD ICON
-            }
-        }
         return super.onOptionsItemSelected(item)
     }
 

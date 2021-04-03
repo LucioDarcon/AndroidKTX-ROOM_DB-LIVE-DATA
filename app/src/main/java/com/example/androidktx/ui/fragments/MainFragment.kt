@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.androidktx.R
+import com.example.androidktx.converter.UserConverter.converterUserEntityToDomain
 import com.example.androidktx.databinding.MainFragmentBinding
 import com.example.androidktx.ui.adapters.UserAdapter
 import com.example.androidktx.ui.dialogs.UserDialog
@@ -18,16 +19,16 @@ import com.example.androidktx.viewmodels.UserViewModel
 import com.example.core.datasource.UserLocalRepository
 import com.example.core.provider.Providers
 import kotlinx.coroutines.launch
-import java.security.acl.Owner
 
-class MainFragment : Fragment(), UserDialogContract {
+class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract {
 
     private var mUserAdapter                   = UserAdapter()
     private var mUserViewModel: UserViewModel? = null
+    private var mSearchUser: String?           = searchUser
 
     companion object {
         fun newInstance() = MainFragment()
-
+        fun newInstance(searchUser: String?) = MainFragment(searchUser)
 
     }
 
@@ -47,8 +48,8 @@ class MainFragment : Fragment(), UserDialogContract {
 
         initAdapter()
 
-        mView?.activityMainFloatActionButton?.setOnClickListener {
-            val mDialog = context?.let { it1 -> UserDialog(it1, this) }
+        mView?.activityMainFloatActionButton?.setOnClickListener { view ->
+            val mDialog = context?.let { context -> UserDialog(context, this, lifecycleScope) }
             mDialog?.show()
         }
 
@@ -60,22 +61,20 @@ class MainFragment : Fragment(), UserDialogContract {
         mView?.activityMainRecyclerView?.adapter       = mUserAdapter
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         getData()
     }
 
     private fun getData() {
         mUserViewModel = ViewModelProvider(
             this, UserViewModel
-                .UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)))
+                .UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), lifecycleScope)
         ).get(UserViewModel::class.java)
 
         lifecycleScope.launch {
-            mUserViewModel?.getUsers()
-
             mUserViewModel?.usersLiveData?.observe(viewLifecycleOwner, Observer { users ->
-                mUserAdapter.submitList(users)
+                mUserAdapter.submitList(converterUserEntityToDomain(users))
             })
         }
     }

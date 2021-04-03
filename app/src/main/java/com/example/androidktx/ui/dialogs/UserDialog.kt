@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +20,7 @@ import com.example.core.datasource.UserLocalRepository
 import com.example.core.provider.Providers
 import kotlinx.coroutines.launch
 
-class UserDialog(context: Context, view: UserDialogContract) : Dialog(context) {
+class UserDialog(context: Context, view: UserDialogContract, private val lifecycleCoroutineScope: LifecycleCoroutineScope) : Dialog(context) {
 
     private lateinit var mDialog: UserDialogBinding
     private var mUserViewModel: UserViewModel? = null
@@ -49,7 +50,7 @@ class UserDialog(context: Context, view: UserDialogContract) : Dialog(context) {
 
     private fun createUser(user: User) {
         mUserViewModel = ViewModelProvider(
-            mView.getOwner(), UserViewModel.UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)))
+            mView.getOwner(), UserViewModel.UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), lifecycleCoroutineScope)
         ).get(UserViewModel::class.java)
 
         mView.getLifecycleScoop().launch {
