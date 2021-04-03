@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
-        val manager    = getSystemService(Context.SEARCH_SERVICE) as? SearchManager
+        val manager                 = getSystemService(Context.SEARCH_SERVICE) as? SearchManager
         val searchItem: MenuItem?   = menu?.findItem(R.id.main_menu_search_icon)
         val searchView: SearchView? = searchItem?.actionView as SearchView
 
@@ -50,17 +50,14 @@ class MainActivity : AppCompatActivity() {
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String?): Boolean {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance(query))
-                    .commitNow()
-                return true
+                return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.container, MainFragment.newInstance(newText))
                     .commitNow()
-                return true
+                return false
             }
         })
         return super.onCreateOptionsMenu(menu)

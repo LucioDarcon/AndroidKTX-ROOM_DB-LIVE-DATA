@@ -1,8 +1,5 @@
 package com.example.androidktx.viewmodels
 
-import android.content.ContentValues
-import android.util.Log
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,11 +9,10 @@ import com.example.core.datasource.UserLocalRepository
 import com.example.core.entities.UserEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class UserViewModel(private val userLocalRepository: UserLocalRepository, private val lifecycleCoroutineScope: LifecycleCoroutineScope) : ViewModel() {
+class UserViewModel(private val userLocalRepository: UserLocalRepository, private val search: String?) : ViewModel() {
 
     var usersLiveData : MutableLiveData<List<UserEntity>?> = MutableLiveData()
     var userCreated                                        = MutableLiveData<User>()
@@ -27,8 +23,8 @@ class UserViewModel(private val userLocalRepository: UserLocalRepository, privat
 
     private fun getUsers() {
         CoroutineScope(Dispatchers.IO).launch {
-             userLocalRepository.getUsers().collect {
-                 usersLiveData.postValue(it)
+            userLocalRepository.getUsers(search).collect {
+                usersLiveData.postValue(it)
             }
         }
     }
@@ -41,10 +37,10 @@ class UserViewModel(private val userLocalRepository: UserLocalRepository, privat
         }
     }
 
-    class UserViewModelFactory(private val userLocalRepository: UserLocalRepository, private val lifecycleCoroutineScope: LifecycleCoroutineScope) : ViewModelProvider.Factory {
+    class UserViewModelFactory(private val userLocalRepository: UserLocalRepository, private val search: String?) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return UserViewModel(userLocalRepository, lifecycleCoroutineScope) as T
+            return UserViewModel(userLocalRepository, search) as T
         }
 
 

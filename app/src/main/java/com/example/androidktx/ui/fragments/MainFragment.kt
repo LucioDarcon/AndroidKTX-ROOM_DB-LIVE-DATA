@@ -11,6 +11,7 @@ import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.androidktx.R
 import com.example.androidktx.converter.UserConverter.converterUserEntityToDomain
+import com.example.androidktx.data.model.User
 import com.example.androidktx.databinding.MainFragmentBinding
 import com.example.androidktx.ui.adapters.UserAdapter
 import com.example.androidktx.ui.dialogs.UserDialog
@@ -20,11 +21,12 @@ import com.example.core.datasource.UserLocalRepository
 import com.example.core.provider.Providers
 import kotlinx.coroutines.launch
 
-class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract {
+class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract,
+    UserAdapter.ClickUserItem {
 
     private var mUserAdapter                   = UserAdapter()
     private var mUserViewModel: UserViewModel? = null
-    private var mSearchUser: String?           = searchUser
+    private var mSearchUser: String?           = searchUser ?: ""
 
     companion object {
         fun newInstance() = MainFragment()
@@ -47,13 +49,21 @@ class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract 
         )
 
         initAdapter()
+        initViewModel()
 
         mView?.activityMainFloatActionButton?.setOnClickListener { view ->
-            val mDialog = context?.let { context -> UserDialog(context, this, lifecycleScope) }
+            val mDialog = context?.let { context -> UserDialog(context, this) }
             mDialog?.show()
         }
 
         return mView?.root
+    }
+
+    private fun initViewModel() {
+        mUserViewModel = ViewModelProvider(
+            this, UserViewModel
+                .UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), mSearchUser)
+        ).get(UserViewModel::class.java)
     }
 
     private fun initAdapter() {
@@ -63,22 +73,16 @@ class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getData()
+        getUsers()
     }
 
-    private fun getData() {
-        mUserViewModel = ViewModelProvider(
-            this, UserViewModel
-                .UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), lifecycleScope)
-        ).get(UserViewModel::class.java)
-
+    private fun getUsers() {
         lifecycleScope.launch {
             mUserViewModel?.usersLiveData?.observe(viewLifecycleOwner, Observer { users ->
-                mUserAdapter.submitList(converterUserEntityToDomain(users))
+                mUserAdapter.submitList(converterUserEntityToDomain(users), this@MainFragment)
             })
         }
     }
-
 
     override fun getSupportFragmentManager(): FragmentManager? {
         return activity?.supportFragmentManager
@@ -94,6 +98,17 @@ class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract 
 
     override fun getViewLifecycle(): LifecycleOwner {
         return viewLifecycleOwner
+    }
+
+    override fun onClickCardItem(user: User) {
+        activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, UserDetailFragment.newInstance(user))
+                ?.addToBackStack("UserDetailFragment")
+                ?.commit()
+    }
+
+    override fun onLongClickCardItem(user: User) {
+        val b = ""
     }
 
 

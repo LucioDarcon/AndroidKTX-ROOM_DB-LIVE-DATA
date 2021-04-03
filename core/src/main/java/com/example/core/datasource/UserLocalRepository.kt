@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flow
 
 class UserLocalRepository(private val userDao: UserDao?) : UserLocalRepositoryContract {
 
-    override suspend fun getUsers() = flow { this.emit(userDao?.getUsers()) }
+    override suspend fun getUsers(search: String?) = flow { this.emit(userDao?.getUsers(search)) }
 
     override suspend fun createUser(userEntity: UserEntity) = flow { this.emit(userDao?.insert(userEntity)) }
 

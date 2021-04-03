@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserLocalRepositoryContract {
 
-    suspend fun getUsers(): Flow<List<UserEntity>?>
+    suspend fun getUsers(search: String?): Flow<List<UserEntity>?>
 
     suspend fun createUser(userEntity: UserEntity): Flow<Long?>
 

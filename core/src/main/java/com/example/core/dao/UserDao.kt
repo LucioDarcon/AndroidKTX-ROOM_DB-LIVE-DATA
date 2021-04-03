@@ -11,9 +11,8 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(userEntity: UserEntity?): Long
-
-    @Query("SELECT * FROM users")
-    suspend fun getUsers(): List<UserEntity>
-
+    
+    @Query("SELECT * FROM users WHERE name LIKE '%' || :userName || '%'")
+    suspend fun getUsers(userName: String?): List<UserEntity>
 
 }

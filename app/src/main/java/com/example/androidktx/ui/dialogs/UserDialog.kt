@@ -20,7 +20,7 @@ import com.example.core.datasource.UserLocalRepository
 import com.example.core.provider.Providers
 import kotlinx.coroutines.launch
 
-class UserDialog(context: Context, view: UserDialogContract, private val lifecycleCoroutineScope: LifecycleCoroutineScope) : Dialog(context) {
+class UserDialog(context: Context, view: UserDialogContract) : Dialog(context) {
 
     private lateinit var mDialog: UserDialogBinding
     private var mUserViewModel: UserViewModel? = null
@@ -50,7 +50,7 @@ class UserDialog(context: Context, view: UserDialogContract, private val lifecyc
 
     private fun createUser(user: User) {
         mUserViewModel = ViewModelProvider(
-            mView.getOwner(), UserViewModel.UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), lifecycleCoroutineScope)
+            mView.getOwner(), UserViewModel.UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), "")
         ).get(UserViewModel::class.java)
 
         mView.getLifecycleScoop().launch {
