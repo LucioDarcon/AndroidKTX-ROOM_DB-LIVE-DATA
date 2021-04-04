@@ -4,18 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.core.dao.ProductDao
 import com.example.core.dao.UserDao
 import com.example.core.database.KTMDatabase.Companion.VERSION
+import com.example.core.entities.ProductEntity
 import com.example.core.entities.UserEntity
 
 @Database(
     version      = VERSION,
-    entities     = [UserEntity::class],
+    entities     = [UserEntity::class, ProductEntity::class],
     exportSchema = false
 )
 abstract class KTMDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
+    abstract fun productDao(): ProductDao
 
     companion object {
 
@@ -31,7 +34,7 @@ abstract class KTMDatabase : RoomDatabase() {
                     .databaseBuilder(
                         applicationContext,
                         KTMDatabase::class.java,
-                        "newsdadw"
+                        "KtmDb"
                     ).fallbackToDestructiveMigration().build()
                     .also { INSTANCE = it }
             }

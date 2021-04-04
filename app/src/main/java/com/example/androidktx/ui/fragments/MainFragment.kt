@@ -11,13 +11,14 @@ import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.androidktx.R
 import com.example.androidktx.converter.UserConverter.converterUserEntityToDomain
+import com.example.androidktx.data.SecurityPreferences
 import com.example.androidktx.data.model.User
 import com.example.androidktx.databinding.MainFragmentBinding
 import com.example.androidktx.ui.adapters.UserAdapter
 import com.example.androidktx.ui.dialogs.UserDialog
 import com.example.androidktx.ui.dialogs.UserDialogContract
 import com.example.androidktx.viewmodels.UserViewModel
-import com.example.core.datasource.UserLocalRepository
+import com.example.core.repository.UserRepository
 import com.example.core.provider.Providers
 import kotlinx.coroutines.launch
 
@@ -62,7 +63,7 @@ class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract,
     private fun initViewModel() {
         mUserViewModel = ViewModelProvider(
             this, UserViewModel
-                .UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), mSearchUser)
+                .UserViewModelFactory(UserRepository(Providers.provideUserDao(context)), mSearchUser)
         ).get(UserViewModel::class.java)
     }
 
@@ -77,19 +78,13 @@ class MainFragment(searchUser: String? = null) : Fragment(), UserDialogContract,
     }
 
     private fun getUsers() {
-        lifecycleScope.launch {
-            mUserViewModel?.usersLiveData?.observe(viewLifecycleOwner, Observer { users ->
-                mUserAdapter.submitList(converterUserEntityToDomain(users), this@MainFragment)
-            })
-        }
+        mUserViewModel?.usersLiveData?.observe(viewLifecycleOwner, Observer { users ->
+            mUserAdapter.submitList(converterUserEntityToDomain(users), this@MainFragment)
+        })
     }
 
     override fun getSupportFragmentManager(): FragmentManager? {
         return activity?.supportFragmentManager
-    }
-
-    override fun getLifecycleScoop(): LifecycleCoroutineScope {
-        return lifecycleScope
     }
 
     override fun getOwner(): ViewModelStore {

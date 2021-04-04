@@ -6,23 +6,38 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.androidktx.R
+import com.example.androidktx.converter.ProductConverter.converterProductEntityToProduct
 import com.example.androidktx.data.model.Product
 import com.example.androidktx.data.model.User
 import com.example.androidktx.databinding.UserDetailFragmentBinding
 import com.example.androidktx.ui.adapters.ProductAdapter
+import com.example.androidktx.ui.dialogs.ProductDialog
+import com.example.androidktx.ui.dialogs.ProductDialogContract
+import com.example.androidktx.viewmodels.ProductViewModel
+import com.example.androidktx.viewmodels.UserViewModel
+import com.example.core.provider.Providers
+import com.example.core.repository.ProductContract
+import com.example.core.repository.ProductRepository
+import com.example.core.repository.UserRepository
+import kotlinx.coroutines.launch
 
-class UserDetailFragment(user: User) : Fragment() {
+class UserDetailFragment(private val currentUser: User? = null,
+                         private val mSearchUser: String? = null) : Fragment(), ProductDialogContract {
 
-    private val mCurrentUser                      = user
     private var mView: UserDetailFragmentBinding? = null
     private var mProductAdapter : ProductAdapter? = null
+    private var mProductViewModel: ProductViewModel? = null
 
     companion object {
         fun newInstance(user: User) : UserDetailFragment {
             return UserDetailFragment(user)
         }
+
+
     }
 
     override fun onCreateView(
@@ -36,31 +51,56 @@ class UserDetailFragment(user: User) : Fragment() {
             null,
             false
         )
-        mView?.user = mCurrentUser
+        mView?.user = currentUser
+        configureFloatButton()
         mView?.executePendingBindings()
         return mView?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initAdapter()
-        mProductAdapter?.submitList(createMockListProduct())
+        initViewModel()
+        getProducts()
         super.onViewCreated(view, savedInstanceState)
     }
 
+    private fun initViewModel() {
+        mProductViewModel = ViewModelProvider(
+            this, ProductViewModel
+                .ProductViewModelFactory(ProductRepository(Providers.provideProductDao(context)), mSearchUser, currentUser?.id)
+        ).get(ProductViewModel::class.java)
+    }
+
     private fun initAdapter() {
-        mProductAdapter = ProductAdapter()
-        mView?.userDetailFragmentRecyclerView?.adapter = mProductAdapter
+        mProductAdapter                                      = ProductAdapter()
+        mView?.userDetailFragmentRecyclerView?.adapter       = mProductAdapter
         mView?.userDetailFragmentRecyclerView?.layoutManager = LinearLayoutManager(context)
     }
 
-    private fun createMockListProduct(): List<Product> {
-        return listOf(
-            Product(name = "Keyboard", description = "this keyboard....", price = 10F),
-            Product(name = "Keyboard 2", description = "this keyboard 2....", price = 20F),
-            Product(name = "Keyboard 3", description = "this keyboard3....", price = 30F)
-        )
+    private fun getProducts() {
+        mProductViewModel?.productLiveData?.observe(viewLifecycleOwner, Observer {
+            mProductAdapter?.submitList(converterProductEntityToProduct(it))
+        })
+
     }
 
+    private fun configureFloatButton() {
+        mView?.userDetailFragmentFloatActionButton?.setOnClickListener { view ->
+            context?.let { it -> ProductDialog(it, this, currentUser?.id).show() }
+        }
+    }
+
+    override fun getViewLifecycle(): LifecycleOwner {
+        return viewLifecycleOwner
+    }
+
+    override fun getOwner(): ViewModelStore {
+        return viewModelStore
+    }
+
+    override fun getSupportFragmentManager(): FragmentManager? {
+        return activity?.supportFragmentManager
+    }
 
 
 }

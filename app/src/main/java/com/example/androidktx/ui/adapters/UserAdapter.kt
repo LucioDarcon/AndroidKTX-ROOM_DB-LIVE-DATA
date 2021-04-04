@@ -41,7 +41,7 @@ class UserAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        return users?.size!!
+        return users?.size ?: 0
     }
 
     interface ClickUserItem {

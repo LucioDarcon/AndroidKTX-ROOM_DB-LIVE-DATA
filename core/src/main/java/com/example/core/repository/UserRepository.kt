@@ -1,11 +1,10 @@
-package com.example.core.datasource
+package com.example.core.repository
 
 import com.example.core.dao.UserDao
 import com.example.core.entities.UserEntity
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class UserLocalRepository(private val userDao: UserDao?) : UserLocalRepositoryContract {
+class UserRepository(private val userDao: UserDao?) : UserRepositoryContract {
 
     override suspend fun getUsers(search: String?) = flow { this.emit(userDao?.getUsers(search)) }
 

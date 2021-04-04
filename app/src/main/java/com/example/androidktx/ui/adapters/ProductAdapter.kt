@@ -13,7 +13,7 @@ import com.example.androidktx.ui.adapters.viewholder.UserViewHolder
 
 class ProductAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var mListProduct : List<Product?> = listOf()
+    private var mListProduct : List<Product>? = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val mCardProductAdapter = DataBindingUtil.inflate<RecyclerViewProductBinding>(
@@ -26,19 +26,19 @@ class ProductAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return ProductViewHolder(mCardProductAdapter)
     }
 
-    fun submitList(productList: List<Product>) {
+    fun submitList(productList: List<Product>?) {
         mListProduct = productList
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
-        return mListProduct.size
+        return mListProduct?.size ?: 0
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ProductViewHolder -> {
-                mListProduct[position]?.let { holder.bind(it) }
+                mListProduct?.get(position)?.let { holder.bind(it) }
             }
         }
     }

@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.androidktx.converter.UserConverter.converterUserToEntity
 import com.example.androidktx.data.model.User
-import com.example.core.datasource.UserLocalRepository
+import com.example.core.repository.UserRepository
 import com.example.core.entities.UserEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class UserViewModel(private val userLocalRepository: UserLocalRepository, private val search: String?) : ViewModel() {
+class UserViewModel(private val userRepository: UserRepository, private val search: String?) : ViewModel() {
 
     var usersLiveData : MutableLiveData<List<UserEntity>?> = MutableLiveData()
     var userCreated                                        = MutableLiveData<User>()
@@ -23,7 +23,7 @@ class UserViewModel(private val userLocalRepository: UserLocalRepository, privat
 
     private fun getUsers() {
         CoroutineScope(Dispatchers.IO).launch {
-            userLocalRepository.getUsers(search).collect {
+            userRepository.getUsers(search).collect {
                 usersLiveData.postValue(it)
             }
         }
@@ -31,16 +31,16 @@ class UserViewModel(private val userLocalRepository: UserLocalRepository, privat
 
     fun createUser(user: User) {
         CoroutineScope(Dispatchers.IO).launch {
-            userLocalRepository.createUser(converterUserToEntity(user)).collect { userEntity ->
-                userCreated.value = user
+            userRepository.createUser(converterUserToEntity(user)).collect { userEntity ->
+                userCreated.postValue(user)
             }
         }
     }
 
-    class UserViewModelFactory(private val userLocalRepository: UserLocalRepository, private val search: String?) : ViewModelProvider.Factory {
+    class UserViewModelFactory(private val userRepository: UserRepository, private val search: String?) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return UserViewModel(userLocalRepository, search) as T
+            return UserViewModel(userRepository, search) as T
         }
 
 

@@ -5,18 +5,15 @@ import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.example.androidktx.R
 import com.example.androidktx.data.model.User
 import com.example.androidktx.databinding.UserDialogBinding
 import com.example.androidktx.ui.fragments.MainFragment
 import com.example.androidktx.viewmodels.UserViewModel
-import com.example.core.datasource.UserLocalRepository
+import com.example.core.repository.UserRepository
 import com.example.core.provider.Providers
 import kotlinx.coroutines.launch
 
@@ -35,11 +32,9 @@ class UserDialog(context: Context, view: UserDialogContract) : Dialog(context) {
             null,
             false
         )
+
         setContentView(mDialog.root)
-        this.window?.setLayout(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        )
+        configureWindow()
 
         mDialog.userDialogSaveUserButton.setOnClickListener {
             createUser(User(name = mDialog.userDialogNameEditText.text.toString(),
@@ -48,20 +43,25 @@ class UserDialog(context: Context, view: UserDialogContract) : Dialog(context) {
         }
     }
 
+    private fun configureWindow() {
+        this.window?.setLayout(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+    }
+
     private fun createUser(user: User) {
         mUserViewModel = ViewModelProvider(
-            mView.getOwner(), UserViewModel.UserViewModelFactory(UserLocalRepository(Providers.provideUserDao(context)), "")
+            mView.getOwner(), UserViewModel.UserViewModelFactory(UserRepository(Providers.provideUserDao(context)), "")
         ).get(UserViewModel::class.java)
 
-        mView.getLifecycleScoop().launch {
-            mUserViewModel?.createUser(user)
+        mUserViewModel?.createUser(user)
 
-            mUserViewModel?.usersLiveData?.observe(mView.getViewLifecycle(), Observer { user ->
-                mView.getSupportFragmentManager()?.beginTransaction()
-                    ?.replace(R.id.container, MainFragment.newInstance())
-                    ?.commitNow()
-            })
-        }
+        mUserViewModel?.usersLiveData?.observe(mView.getViewLifecycle(), Observer { user ->
+            mView.getSupportFragmentManager()?.beginTransaction()
+                ?.replace(R.id.container, MainFragment.newInstance())
+                ?.commit()
+        })
     }
 
 
